@@ -8,7 +8,7 @@
 
 |Nom|Prénom|login|email|
 |--|--|--|--|
-| ??? | ??? | ??? | ???@???.?? |
+| Bourgeaux | Maxence | bm142013 | maxence.bourgeaux@etu.univ-lehavre.fr |
 
 ## Travail à réaliser
 
@@ -29,4 +29,4 @@ Projet à rendre sous forme d'un projet GIT sur la forge de l'université.
 
 ## Évaluation
 
-[Liste des aptitudes évaluées.](/teaching/WebDev1#ws-whiteboard)
+[Liste des aptitudes évaluées.](https://pigne.org/teaching/WebDev1/#websocket)
