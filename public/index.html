@@ -19,17 +19,21 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Simple Chat App</title>
+    <title>Simple Canvas App</title>
   </head>
+
   <body>
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+
     <div id="root"></div>
-      <header><p>???</p></header>
-      <ul id="messages"></ul>
-      <form action="">
-      &#10093; <input autofocus autocomplete="off" placeholder="Send a message"/>
-      </form>
+    <header>
+      <p></p>
+    </header>
+    <div class="alignCanvas">
+      <canvas id="canvas" width="1500" height="850"></canvas>
+    </div>
   </body>
+
 </html>

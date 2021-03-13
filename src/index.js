@@ -1,16 +1,14 @@
 import './index.css';
 import nameGenerator from './name-generator';
 import isDef from './is-def';
-  
-  
 
 // Store/retrieve the name in/from a cookie.
 const cookies = document.cookie.split(';');
 console.log(cookies)
 let wsname = cookies.find(function(c) {
-  if (c.match(/wsname/) !== null) return true;
-  return false;
+  return c.match(/wsname/) !== null;
 });
+
 if (isDef(wsname)) {
   wsname = wsname.split('=')[1];
 } else {
@@ -22,34 +20,53 @@ if (isDef(wsname)) {
 document.querySelector('header>p').textContent = decodeURIComponent(wsname);
 
 // Create a WebSocket connection to the server
-const ws = new WebSocket("ws://" + window.location.host+ "/socket");
+const ws = new WebSocket("ws://" + window.location.host + "/socket");
 
 // We get notified once connected to the server
 ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
-// Listen to messages coming from the server. When it happens, create a new <li> and append it to the DOM.
-const messages = document.querySelector('#messages');
-let line;
-ws.onmessage = (event) => {
-  line = document.createElement('li');
-  line.textContent = event.data;
-  messages.appendChild(line);
-};
+const canvas = document.querySelector('canvas')
+let rect = canvas.getBoundingClientRect();
+const ctx = canvas.getContext("2d");
+let isDrawing = false;
 
-// Retrieve the input element. Add listeners in order to send the content of the input when the "return" key is pressed.
-function sendMessage(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  if (sendInput.value !== '') {
-    // Send data through the WebSocket
-    ws.send(sendInput.value);
-    sendInput.value = '';
+canvas.addEventListener('mousedown', function (e) {
+  isDrawing = true;
+  rect = canvas.getBoundingClientRect();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDrawing = false;
+});
+
+canvas.addEventListener('mousemove', e => {
+  if(isDrawing) {
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
   }
-}
-const sendForm = document.querySelector('form');
-const sendInput = document.querySelector('form input');
-sendForm.addEventListener('submit', sendMessage, true);
-sendForm.addEventListener('blur', sendMessage, true);
+});
 
+canvas.addEventListener('mouseleave', e => {
+  if(isDrawing) {
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    if(x < 0) {
+      x = 0;
+    } else if(x >= rect.right) {
+      x = rect.right - 1;
+    }
+    if(y < 0) {
+      y = 0;
+    } else if(y >= rect.bottom) {
+      y = rect.bottom - 1;
+    }
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    isDrawing = false;
+  }
+});
