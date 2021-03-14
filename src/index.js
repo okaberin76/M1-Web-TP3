@@ -1,5 +1,6 @@
 import './index.css';
 import nameGenerator from './name-generator';
+import colorGenerator from './color-generator';
 import isDef from './is-def';
 
 // Store/retrieve the name in/from a cookie.
@@ -16,8 +17,22 @@ if (isDef(wsname)) {
   document.cookie = "wsname=" + encodeURIComponent(wsname);
 }
 
+// Store/retrieve the color in/from a cookie.
+let wscolor = cookies.find(function(c) {
+  return c.match(/wscolor/) !== null;
+});
+
+if (isDef(wscolor)) {
+  wscolor = wscolor.split('=')[1];
+} else {
+  wscolor = colorGenerator();
+  document.cookie = "wscolor=" + encodeURIComponent(wscolor);
+}
+
 // Set the name in the header
 document.querySelector('header>p').textContent = decodeURIComponent(wsname);
+// Set the color in the header
+document.querySelector('header>p').style.color = wscolor;
 
 // Create a WebSocket connection to the server
 const ws = new WebSocket("ws://" + window.location.host + "/socket");
@@ -45,6 +60,7 @@ canvas.addEventListener('mouseup', () => {
 
 canvas.addEventListener('mousemove', e => {
   if(isDrawing) {
+    ctx.strokeStyle = wscolor;
     ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
     ctx.stroke();
   }
@@ -65,6 +81,7 @@ canvas.addEventListener('mouseleave', e => {
     } else if(y >= rect.bottom) {
       y = rect.bottom - 1;
     }
+    ctx.strokeStyle = wscolor;
     ctx.lineTo(x, y);
     ctx.stroke();
     isDrawing = false;
