@@ -42,67 +42,46 @@ ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
-const canvas = document.querySelector('canvas')
-let rect = canvas.getBoundingClientRect();
+const canvas = document.getElementById("canvas");
+const rect = canvas.getBoundingClientRect();
 const ctx = canvas.getContext("2d");
-let isDrawing = false;
 
-// Data
-let room = "Bienvenue !";
-let roomId = 0;
-let coords = [2];
+canvas.width = canvas.parentElement.clientWidth;
+canvas.height = window.innerHeight;
+ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function sendData(mode) {
-  let json = JSON.stringify({
-    "x": coords[0],
-    "y": coords[1],
-    "color": wscolor,
-    "mode": mode,
-    "roomName": room,
-    "roomId": roomId
-  });
-  ws.send(json);
-}
-
-canvas.addEventListener('mousedown', function (e) {
-  isDrawing = true;
-  rect = canvas.getBoundingClientRect();
-  ctx.beginPath();
-  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+window.addEventListener('resize', () => {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = window.innerHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-canvas.addEventListener('mouseup', () => {
+let isDrawing = false;
+let coordX = NaN;
+let coordY = NaN;
+
+canvas.addEventListener('mousedown', function (e) {
+  coordX = e.clientX - rect.left;
+  coordY = e.clientY - rect.top;
+  isDrawing = true;
+});
+
+canvas.addEventListener('mouseup', function(e) {
+  coordX = NaN;
+  coordY = NaN;
   isDrawing = false;
 });
 
-canvas.addEventListener('mousemove', e => {
+canvas.addEventListener('mousemove', function(e) {
   if(isDrawing) {
-    ctx.strokeStyle = wscolor;
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctx.stroke();
+    draw(coordX, coordY, e.clientX - rect.left, e.clientY - rect.top);
+    coordX = e.clientX - rect.left;
+    coordY = e.clientY - rect.top;
   }
 });
 
-canvas.addEventListener('mouseleave', e => {
-  if(isDrawing) {
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
-
-    if(x < 0) {
-      x = 0;
-    } else if(x >= rect.right) {
-      x = rect.right - 1;
-    }
-    if(y < 0) {
-      y = 0;
-    } else if(y >= rect.bottom) {
-      y = rect.bottom - 1;
-    }
-    ctx.strokeStyle = wscolor;
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    isDrawing = false;
-  }
+canvas.addEventListener('mouseleave', () => {
+  isDrawing = false;
 });
 
 function draw(x1, y1, x2, y2, color) {
