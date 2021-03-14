@@ -10,7 +10,7 @@ let wsname = cookies.find(function(c) {
   return c.match(/wsname/) !== null;
 });
 
-if (isDef(wsname)) {
+if(isDef(wsname)) {
   wsname = wsname.split('=')[1];
 } else {
   wsname = nameGenerator();
@@ -22,7 +22,7 @@ let wscolor = cookies.find(function(c) {
   return c.match(/wscolor/) !== null;
 });
 
-if (isDef(wscolor)) {
+if(isDef(wscolor)) {
   wscolor = wscolor.split('=')[1];
 } else {
   wscolor = colorGenerator();
@@ -42,8 +42,13 @@ ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
+// List of all room with a canvas inside
+let listRoom = {};
+// Board - Canvas
 const canvas = document.getElementById("canvas");
+// Header
 const header = document.getElementsByTagName("header")[0];
+// Create a form who will allow the user to write a room name and create a new room
 const form = document.getElementsByTagName("form")[0];
 const ctx = canvas.getContext("2d");
 
@@ -51,14 +56,41 @@ canvas.width = canvas.parentElement.clientWidth;
 canvas.height = window.innerHeight;
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+// We use the message system already implemented and use it to create rooms with the form
 ws.onmessage = (event) => {
   let message = JSON.parse(event.data);
   switch (message.type) {
+    case 'SETUP':
+      listRoom = message.data;
+      for (let room in listRoom) {
+        if (Object.hasOwnProperty.call(listRoom, room)) {
+          createRoom(room);
+        }
+      }
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      listRoom[roomId].forEach(line => {
+        draw(line[0], line[1], line[2], line[3], line[4]);
+      });
+      break;
+    case 'ROOM':
+      listRoom[message.room] = [];
+      createRoom(message.room);
+      break;
     case 'DRAW':
-      draw(message.xLastPos, message.yLastPos, message.xPos, message.yPos);
+      listRoom[message.room].push([message.xPos, message.yPos, message.xLastPos, message.yLastPos, message.color]);
+      draw(message.xLastPos, message.yLastPos, message.xPos, message.yPos, message.color);
       break;
   }
 };
+
+const roomForm = document.querySelectorAll('form')[0];
+const roomInput = document.querySelectorAll('form input')[0];
+const allRooms = document.querySelector('#allRooms');
+
+roomForm.addEventListener('submit', sendRoom, true);
+roomForm.addEventListener('blur', sendRoom, true);
 
 window.addEventListener('resize', () => {
   canvas.width = canvas.parentElement.clientWidth;
@@ -66,7 +98,7 @@ window.addEventListener('resize', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-let layerId = 'index';
+let roomId = 'index';
 let isDrawing = false;
 let coordX = NaN;
 let coordY = NaN;
@@ -80,7 +112,7 @@ canvas.addEventListener('mousedown', function (e) {
 canvas.addEventListener('mouseup', function(e) {
   let pos = {
     type: 'DRAW',
-    layer: layerId,
+    room: roomId,
     color: wscolor,
     xPos: e.clientX - canvas.offsetLeft,
     yPos: e.clientY - canvas.offsetTop,
@@ -98,7 +130,7 @@ canvas.addEventListener('mousemove', function(e) {
   if(isDrawing) {
     let pos = {
       type: 'DRAW',
-      layer: layerId,
+      room: roomId,
       color: wscolor,
       xPos: e.clientX - canvas.offsetLeft,
       yPos: e.clientY - canvas.offsetTop,
