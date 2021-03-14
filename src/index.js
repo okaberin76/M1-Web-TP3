@@ -47,6 +47,23 @@ let rect = canvas.getBoundingClientRect();
 const ctx = canvas.getContext("2d");
 let isDrawing = false;
 
+// Data
+let room = "Bienvenue !";
+let roomId = 0;
+let coords = [2];
+
+function sendData(mode) {
+  let json = JSON.stringify({
+    "x": coords[0],
+    "y": coords[1],
+    "color": wscolor,
+    "mode": mode,
+    "roomName": room,
+    "roomId": roomId
+  });
+  ws.send(json);
+}
+
 canvas.addEventListener('mousedown', function (e) {
   isDrawing = true;
   rect = canvas.getBoundingClientRect();
