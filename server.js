@@ -18,9 +18,10 @@ wss.broadcast = function broadcast(message) {
   });
 };
 
+let layerList = {index: []};
+
 // Register a listener for new connections on the WebSocket.
 wss.on('connection', function(client, request) {
-
   // retrieve the name in the cookies
   let cookies = request.headers.cookie.split(';');
   let wsname = cookies.find((c) => {
@@ -29,14 +30,15 @@ wss.on('connection', function(client, request) {
   wsname = wsname.split('=')[1];
 
   // greet the newly connected user
-  client.send('Welcome, ' + decodeURIComponent(wsname) + '!');
+  client.send(JSON.stringify({
+    type: 'SETUP',
+    text: 'Welcome, ' + decodeURIComponent(wsname) + '!',
+  }));
 
   // Register a listener on each message of each connection
   client.on('message', function(message) {
-    let cli = '[' + decodeURIComponent(wsname) + '] ';
-    console.log("message from", cli);
-    // when receiving a message, broadcast it to all the connected clients
-    wss.broadcast(cli + message);
+    let msg = JSON.parse(message);
+    wss.broadcast(JSON.stringify(msg));
   });
 });
 

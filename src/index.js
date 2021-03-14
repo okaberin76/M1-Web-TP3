@@ -43,12 +43,22 @@ ws.onopen = (event) => {
 };
 
 const canvas = document.getElementById("canvas");
-const rect = canvas.getBoundingClientRect();
+const header = document.getElementsByTagName("header")[0];
+const form = document.getElementsByTagName("form")[0];
 const ctx = canvas.getContext("2d");
 
 canvas.width = canvas.parentElement.clientWidth;
 canvas.height = window.innerHeight;
 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+ws.onmessage = (event) => {
+  let message = JSON.parse(event.data);
+  switch (message.type) {
+    case 'DRAW':
+      draw(message.xLastPos, message.yLastPos, message.xPos, message.yPos);
+      break;
+  }
+};
 
 window.addEventListener('resize', () => {
   canvas.width = canvas.parentElement.clientWidth;
@@ -56,17 +66,29 @@ window.addEventListener('resize', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
+let layerId = 'index';
 let isDrawing = false;
 let coordX = NaN;
 let coordY = NaN;
 
 canvas.addEventListener('mousedown', function (e) {
-  coordX = e.clientX - rect.left;
-  coordY = e.clientY - rect.top;
+  coordX = e.clientX - canvas.offsetLeft;
+  coordY = e.clientY - canvas.offsetTop;
   isDrawing = true;
 });
 
 canvas.addEventListener('mouseup', function(e) {
+  let pos = {
+    type: 'DRAW',
+    layer: layerId,
+    color: wscolor,
+    xPos: e.clientX - canvas.offsetLeft,
+    yPos: e.clientY - canvas.offsetTop,
+    xLastPos: coordX,
+    yLastPos: coordY
+  }
+  ws.send(JSON.stringify(pos));
+
   coordX = NaN;
   coordY = NaN;
   isDrawing = false;
@@ -74,9 +96,19 @@ canvas.addEventListener('mouseup', function(e) {
 
 canvas.addEventListener('mousemove', function(e) {
   if(isDrawing) {
-    draw(coordX, coordY, e.clientX - rect.left, e.clientY - rect.top);
-    coordX = e.clientX - rect.left;
-    coordY = e.clientY - rect.top;
+    let pos = {
+      type: 'DRAW',
+      layer: layerId,
+      color: wscolor,
+      xPos: e.clientX - canvas.offsetLeft,
+      yPos: e.clientY - canvas.offsetTop,
+      xLastPos: coordX,
+      yLastPos: coordY
+    }
+    ws.send(JSON.stringify(pos));
+
+    coordX = e.clientX - canvas.offsetLeft;
+    coordY = e.clientY - canvas.offsetTop;
   }
 });
 
