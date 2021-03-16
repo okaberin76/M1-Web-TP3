@@ -38,9 +38,8 @@ ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
-canvas.width = canvas.parentElement.clientWidth;
-canvas.height = window.innerHeight;
-ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Canvas default settings
+canvasDefaultSettings();
 
 // We use the message system already implemented and use it to create rooms with the form
 ws.onmessage = (event) => {
@@ -53,9 +52,7 @@ ws.onmessage = (event) => {
           createRoom(room);
         }
       }
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasDefaultSettings();
       listRoom[roomId].forEach(line => {
         draw(line[0], line[1], line[2], line[3], line[4]);
       });
@@ -75,9 +72,7 @@ roomForm.addEventListener('submit', sendRoom, true);
 roomForm.addEventListener('blur', sendRoom, true);
 
 window.addEventListener('resize', () => {
-  canvas.width = canvas.parentElement.clientWidth;
-  canvas.height = window.innerHeight;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvasDefaultSettings();
 });
 
 canvas.addEventListener('mousedown', function (e) {
