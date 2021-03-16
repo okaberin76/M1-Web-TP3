@@ -16,3 +16,15 @@ header p {
   margin: 1em;
   color: #7a7a7a;
 }
+
+.position {
+  float: left;
+}
+
+.position.left {
+  width: 15%;
+}
+
+.position.center {
+  width: 85%;
+}

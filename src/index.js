@@ -52,6 +52,12 @@ const header = document.getElementsByTagName("header")[0];
 const form = document.getElementsByTagName("form")[0];
 const ctx = canvas.getContext("2d");
 
+function canvasDefaultSettings() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 canvasDefaultSettings();
 
 // We use the message system already implemented and use it to create rooms with the form
@@ -85,8 +91,8 @@ const roomForm = document.querySelectorAll('form')[0];
 const roomInput = document.querySelectorAll('form input')[0];
 const allRooms = document.querySelector('#allRooms');
 
-roomForm.addEventListener('submit', sendRoom, true);
-roomForm.addEventListener('blur', sendRoom, true);
+roomForm.addEventListener('submit', sendRoom);
+roomForm.addEventListener('blur', sendRoom);
 
 window.addEventListener('resize', () => {
   canvasDefaultSettings();
@@ -94,8 +100,18 @@ window.addEventListener('resize', () => {
 
 let roomId = 'index';
 let isDrawing = false;
-let coordX = NaN;
-let coordY = NaN;
+let coordX;
+let coordY;
+
+function draw(x1, y1, x2, y2, color) {
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.closePath();
+}
 
 canvas.addEventListener('mousedown', function (e) {
   coordX = e.clientX - canvas.offsetLeft;
@@ -115,8 +131,8 @@ canvas.addEventListener('mouseup', function(e) {
   }
   ws.send(JSON.stringify(pos));
 
-  coordX = NaN;
-  coordY = NaN;
+  coordX = 0;
+  coordY = 0;
   isDrawing = false;
 });
 
@@ -142,35 +158,6 @@ canvas.addEventListener('mouseleave', () => {
   isDrawing = false;
 });
 
-function canvasDefaultSettings() {
-  canvas.width = canvas.parentElement.clientWidth;
-  canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function draw(x1, y1, x2, y2, color) {
-  ctx.beginPath();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  ctx.closePath();
-}
-
-function sendRoom(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  if (roomInput.value !== '') {
-    let message = {
-      type: 'ROOM',
-      room: roomInput.value
-    }
-    ws.send(JSON.stringify(message));
-  }
-  roomInput.value = '';
-}
-
 function createRoom(roomName) {
   let button = document.createElement('li');
   button.textContent = roomName;
@@ -183,4 +170,15 @@ function createRoom(roomName) {
     });
   });
   allRooms.appendChild(button);
+}
+
+function sendRoom() {
+  if (roomInput.value !== '') {
+    let message = {
+      type: 'ROOM',
+      room: roomInput.value
+    }
+    ws.send(JSON.stringify(message));
+  }
+  roomInput.value = '';
 }
