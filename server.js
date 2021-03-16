@@ -18,7 +18,7 @@ wss.broadcast = function broadcast(message) {
   });
 };
 
-let roomList = {index: []};
+let listRoom = {index: []};
 
 // Register a listener for new connections on the WebSocket.
 wss.on('connection', function(client, request) {
@@ -33,7 +33,7 @@ wss.on('connection', function(client, request) {
   client.send(JSON.stringify({
     type: 'SETUP',
     text: 'Welcome, ' + decodeURIComponent(wsname) + '!',
-    data: roomList
+    data: listRoom
   }));
 
   // Register a listener on each message of each connection
@@ -41,10 +41,10 @@ wss.on('connection', function(client, request) {
     let msg = JSON.parse(message);
     switch (msg.type) {
       case 'ROOM':
-        roomList[msg.room] = [];
+        listRoom[msg.room] = [];
         break;
       case 'DRAW':
-        roomList[msg.room].push([msg.xPos, msg.yPos, msg.xLastPos, msg.yLastPos, msg.color]);
+        listRoom[msg.room].push([msg.xPos, msg.yPos, msg.xLastPos, msg.yLastPos, msg.color]);
         break;
     }
     wss.broadcast(JSON.stringify(msg));
