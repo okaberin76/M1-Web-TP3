@@ -4,8 +4,9 @@ import colorGenerator from './color-generator';
 import isDef from './is-def';
 
 // Store/retrieve the name in/from a cookie.
+const cookies = document.cookie.split(';');
 console.log(cookies)
-wsname = cookies.find(function(c) {
+let wsname = cookies.find(function(c) {
   return c.match(/wsname/) !== null;
 });
 
@@ -17,7 +18,7 @@ if(isDef(wsname)) {
 }
 
 // Store/retrieve the color in/from a cookie.
-wscolor = cookies.find(function(c) {
+let wscolor = cookies.find(function(c) {
   return c.match(/wscolor/) !== null;
 });
 
@@ -33,12 +34,24 @@ document.querySelector('header>p').textContent = decodeURIComponent(wsname);
 // Set the color in the header
 document.querySelector('header>p').style.color = wscolor;
 
+// Create a WebSocket connection to the server
+const ws = new WebSocket("ws://" + window.location.host + "/socket");
+
 // We get notified once connected to the server
 ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
-// Canvas default settings
+// List of all room with a canvas inside
+let listRoom = {};
+// Board - Canvas
+const canvas = document.getElementById("canvas");
+// Header
+const header = document.getElementsByTagName("header")[0];
+// Create a form who will allow the user to write a room name and create a new room
+const form = document.getElementsByTagName("form")[0];
+const ctx = canvas.getContext("2d");
+
 canvasDefaultSettings();
 
 // We use the message system already implemented and use it to create rooms with the form
@@ -68,12 +81,21 @@ ws.onmessage = (event) => {
   }
 };
 
+const roomForm = document.querySelectorAll('form')[0];
+const roomInput = document.querySelectorAll('form input')[0];
+const allRooms = document.querySelector('#allRooms');
+
 roomForm.addEventListener('submit', sendRoom, true);
 roomForm.addEventListener('blur', sendRoom, true);
 
 window.addEventListener('resize', () => {
   canvasDefaultSettings();
 });
+
+let roomId = 'index';
+let isDrawing = false;
+let coordX = NaN;
+let coordY = NaN;
 
 canvas.addEventListener('mousedown', function (e) {
   coordX = e.clientX - canvas.offsetLeft;
@@ -119,3 +141,46 @@ canvas.addEventListener('mousemove', function(e) {
 canvas.addEventListener('mouseleave', () => {
   isDrawing = false;
 });
+
+function canvasDefaultSettings() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function draw(x1, y1, x2, y2, color) {
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function sendRoom(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (roomInput.value !== '') {
+    let message = {
+      type: 'ROOM',
+      room: roomInput.value
+    }
+    ws.send(JSON.stringify(message));
+  }
+  roomInput.value = '';
+}
+
+function createRoom(roomName) {
+  let button = document.createElement('li');
+  button.textContent = roomName;
+  button.setAttribute("id", roomName);
+  button.addEventListener("click", () => {
+    roomId = roomName;
+    canvasDefaultSettings();
+    listRoom[roomId].forEach(line => {
+      draw(line[0], line[1], line[2], line[3], line[4]);
+    });
+  });
+  allRooms.appendChild(button);
+}
