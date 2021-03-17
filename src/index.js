@@ -52,13 +52,20 @@ const header = document.getElementsByTagName("header")[0];
 const form = document.getElementsByTagName("form")[0];
 const ctx = canvas.getContext("2d");
 
+let roomId = 'Room_1';
+let isDrawing = false;
+let coordX;
+let coordY;
+
 function canvasDefaultSettings() {
   canvas.width = canvas.parentElement.clientWidth;
   canvas.height = window.innerHeight - header.offsetHeight - form.offsetHeight;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
-canvasDefaultSettings();
+  listRoom[roomId].forEach(line => {
+    draw(line[0], line[1], line[2], line[3], line[4]);
+  });
+}
 
 // We use the message system already implemented and use it to create rooms with the form
 ws.onmessage = (event) => {
@@ -72,9 +79,6 @@ ws.onmessage = (event) => {
         }
       }
       canvasDefaultSettings();
-      listRoom[roomId].forEach(line => {
-        draw(line[0], line[1], line[2], line[3], line[4]);
-      });
       break;
     case 'ROOM':
       listRoom[message.room] = [];
@@ -97,11 +101,6 @@ roomForm.addEventListener('blur', sendRoom);
 window.addEventListener('resize', () => {
   canvasDefaultSettings();
 });
-
-let roomId = 'Room_1';
-let isDrawing = false;
-let coordX;
-let coordY;
 
 function draw(x1, y1, x2, y2, color) {
   ctx.beginPath();
@@ -157,9 +156,6 @@ function createRoom(roomName) {
   button.addEventListener("click", () => {
     roomId = roomName;
     canvasDefaultSettings();
-    listRoom[roomId].forEach(line => {
-      draw(line[0], line[1], line[2], line[3], line[4]);
-    });
   });
   allRooms.appendChild(button);
 }
