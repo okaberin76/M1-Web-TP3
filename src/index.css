@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  background-color: #000000;
 }
 
 body {
@@ -14,17 +15,54 @@ header p {
   font-weight: bold;
   font-style: italic;
   margin: 1em;
-  color: #7a7a7a;
+  color: #ffffff;
+  padding: 30px 30px;
 }
 
-.position {
+canvas {
+  background-color: white;
+}
+
+form {
+  background: #08ADDA;
+  font-size: larger;
+  font-weight: bold;
+  width: 100%;
+}
+
+form input {
+  border: 0;
+  background-color: #ffffff;
+  color: #000000;
+  outline-width: 0;
+  font-size: larger;
+  padding: 15px 30px;
+}
+
+#allRooms {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+li {
+  padding: 15px 40px;
+}
+
+li:hover {
+  background: grey;
+  cursor: pointer;
+}
+
+::placeholder {
+  color: #000000;
+}
+
+.text {
   float: left;
-}
-
-.position.left {
   width: 15%;
 }
 
-.position.center {
+.drawing {
+  float: right;
   width: 85%;
 }
