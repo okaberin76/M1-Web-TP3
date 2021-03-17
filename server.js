@@ -18,7 +18,7 @@ wss.broadcast = function broadcast(message) {
   });
 };
 
-let listRoom = {index: []};
+let listRoom = {Room_1: []};
 
 // Register a listener for new connections on the WebSocket.
 wss.on('connection', function(client, request) {

@@ -98,7 +98,7 @@ window.addEventListener('resize', () => {
   canvasDefaultSettings();
 });
 
-let roomId = 'index';
+let roomId = 'Room_1';
 let isDrawing = false;
 let coordX;
 let coordY;
