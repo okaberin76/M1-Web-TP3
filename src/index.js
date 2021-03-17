@@ -119,8 +119,8 @@ canvas.addEventListener('mousedown', function (e) {
   isDrawing = true;
 });
 
-canvas.addEventListener('mouseup', function(e) {
-  let pos = {
+function sendData(e) {
+  return {
     type: 'DRAW',
     room: roomId,
     color: wscolor,
@@ -128,8 +128,11 @@ canvas.addEventListener('mouseup', function(e) {
     yPos: e.clientY - canvas.offsetTop,
     xLastPos: coordX,
     yLastPos: coordY
-  }
-  ws.send(JSON.stringify(pos));
+  };
+}
+
+canvas.addEventListener('mouseup', function(e) {
+  ws.send(JSON.stringify(sendData(e)));
   coordX = 0;
   coordY = 0;
   isDrawing = false;
@@ -137,16 +140,7 @@ canvas.addEventListener('mouseup', function(e) {
 
 canvas.addEventListener('mousemove', function(e) {
   if(isDrawing) {
-    let pos = {
-      type: 'DRAW',
-      room: roomId,
-      color: wscolor,
-      xPos: e.clientX - canvas.offsetLeft,
-      yPos: e.clientY - canvas.offsetTop,
-      xLastPos: coordX,
-      yLastPos: coordY
-    }
-    ws.send(JSON.stringify(pos));
+    ws.send(JSON.stringify(sendData(e)));
     coordX = e.clientX - canvas.offsetLeft;
     coordY = e.clientY - canvas.offsetTop;
   }
