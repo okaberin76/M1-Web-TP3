@@ -63,11 +63,11 @@ canvasDefaultSettings();
 // We use the message system already implemented and use it to create rooms with the form
 ws.onmessage = (event) => {
   let message = JSON.parse(event.data);
-  switch (message.type) {
+  switch(message.type) {
     case 'SETUP':
       listRoom = message.data;
-      for (let room in listRoom) {
-        if (Object.hasOwnProperty.call(listRoom, room)) {
+      for(let room in listRoom) {
+        if(Object.hasOwnProperty.call(listRoom, room)) {
           createRoom(room);
         }
       }
@@ -130,7 +130,6 @@ canvas.addEventListener('mouseup', function(e) {
     yLastPos: coordY
   }
   ws.send(JSON.stringify(pos));
-
   coordX = 0;
   coordY = 0;
   isDrawing = false;
@@ -148,7 +147,6 @@ canvas.addEventListener('mousemove', function(e) {
       yLastPos: coordY
     }
     ws.send(JSON.stringify(pos));
-
     coordX = e.clientX - canvas.offsetLeft;
     coordY = e.clientY - canvas.offsetTop;
   }
@@ -173,12 +171,10 @@ function createRoom(roomName) {
 }
 
 function sendRoom() {
-  if (roomInput.value !== '') {
-    let message = {
-      type: 'ROOM',
-      room: roomInput.value
-    }
-    ws.send(JSON.stringify(message));
+  let message = {
+    type: 'ROOM',
+    room: roomInput.value
   }
-  roomInput.value = '';
+  ws.send(JSON.stringify(message));
 }
+

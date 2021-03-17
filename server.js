@@ -39,7 +39,7 @@ wss.on('connection', function(client, request) {
   // Register a listener on each message of each connection
   client.on('message', function(message) {
     let msg = JSON.parse(message);
-    switch (msg.type) {
+    switch(msg.type) {
       case 'ROOM':
         listRoom[msg.room] = [];
         break;
